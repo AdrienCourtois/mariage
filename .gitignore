@@ -1,0 +1,5 @@
+# Jamais sur GitHub : le contenu en clair, le mot de passe et le QR code (qui contient le mot de passe)
+src/
+motdepasse.txt
+qr/
+__pycache__/

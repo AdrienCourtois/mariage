@@ -30,6 +30,7 @@ import segno
 # Adresse du site une fois en ligne (sert au QR code).
 SITE_URL = "https://adriencourtois.github.io/mariage/"
 PAGES = ["index.html", "rsvp.html"]
+THEME = "jour"  # src/themes/<THEME>.css, ajouté à src/themes/base.css
 ITERATIONS = 250_000
 # ────────────────────────────────────────────────────────────
 
@@ -44,9 +45,14 @@ def normalize(pwd: str) -> str:
     return unicodedata.normalize("NFC", pwd.strip().lower())
 
 
+def stylesheet() -> str:
+    themes = SRC / "themes"
+    return (themes / "base.css").read_text(encoding="utf-8") + "\n" + (themes / f"{THEME}.css").read_text(encoding="utf-8")
+
+
 def inline_assets(html: str) -> str:
     def css(_m):
-        return "<style>\n" + (SRC / "style.css").read_text(encoding="utf-8") + "\n</style>"
+        return "<style>\n" + stylesheet() + "\n</style>"
 
     def js(m):
         return "<script>\n" + (SRC / m.group(1)).read_text(encoding="utf-8") + "\n</script>"
@@ -65,40 +71,50 @@ GATE = r"""<!doctype html>
 <title>Louise &amp; Adrien</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
 <style>
-:root{--paper:#f5f6f1;--card:#fff;--ink:#1d2a23;--muted:#5c695f;--line:#d6dbd0;--accent:#7b3443;
---display:"Bodoni Moda","Didot",Georgia,serif;--body:"Jost","Futura","Segoe UI",system-ui,sans-serif}
+:root{--text:#1e2450;--muted:#4a5079;--gold:#c4a052;--gold-text:#86621d;--line:rgba(196,160,82,.55);
+--display:"Cinzel","Trajan Pro","Times New Roman",serif;--body:"EB Garamond",Garamond,Georgia,serif;color-scheme:light}
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6;
-display:grid;place-items:center;padding:24px max(20px,env(safe-area-inset-left,0px)) 24px max(20px,env(safe-area-inset-right,0px))}
-.card{width:100%;max-width:26rem;text-align:center;display:grid;gap:1.1rem;justify-items:center}
-.label{font-size:.78rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0}
-h1{font-family:var(--display);font-weight:400;font-style:italic;font-size:clamp(2.4rem,9vw,3.4rem);line-height:1.1;margin:0}
-h1 span{font-style:normal;color:var(--accent)}
+html,body{min-height:100%}
+body{margin:0;background:#e3e7f2;color:var(--text);font-family:var(--body);font-size:1.1875rem;line-height:1.6;
+display:grid;place-items:center;min-height:100vh;padding:24px max(16px,env(safe-area-inset-left,0px)) 24px max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:#e3e7f2 url("assets/ciel-jour.jpg") center/cover no-repeat}
+.card{width:100%;max-width:28rem;text-align:center;display:grid;gap:1rem;justify-items:center;padding:3rem 1.8rem;
+border:1.5px solid var(--gold);border-radius:26px;
+background:url("assets/coin-hg.png") left 10px top 10px/64px no-repeat,url("assets/coin-hd.png") right 10px top 10px/64px no-repeat,
+url("assets/coin-bg.png") left 10px bottom 10px/64px no-repeat,url("assets/coin-bd.png") right 10px bottom 10px/64px no-repeat,rgba(255,255,255,.4)}
+.embleme{width:5.5rem;height:auto;display:block}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,10vw,3.4rem);line-height:1.05;margin:0;display:grid}
+h1 span{font-size:.62em;color:var(--gold-text)}
+.alliances{width:4.6rem;height:2.4rem;color:var(--gold)}
 p{margin:0;color:var(--muted)}
-form{width:100%;display:grid;gap:.7rem;margin-top:.6rem}
-input{font:inherit;width:100%;padding:.85rem 1rem;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:center;letter-spacing:.05em}
-input:focus{outline:2px solid var(--accent);outline-offset:2px;border-color:var(--accent)}
-button{font:inherit;font-size:.82rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;padding:.9rem 1.6rem;
-border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
-button:hover{background:var(--ink);border-color:var(--ink)}
-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#gate{display:grid;gap:1rem;width:100%}
+form{width:100%;display:grid;gap:.7rem}
+label{font-family:var(--display);font-size:.85rem;letter-spacing:.08em;color:var(--gold-text)}
+input{font:inherit;width:100%;padding:.8rem 1rem;border:1.5px solid var(--line);border-radius:999px;background:rgba(255,255,255,.75);color:var(--text);text-align:center;letter-spacing:.05em}
+input:focus{outline:2px solid var(--gold);outline-offset:2px;border-color:var(--gold)}
+button{font-family:var(--display);font-size:.85rem;letter-spacing:.1em;padding:.85rem 1.6rem;border:1px solid var(--text);border-radius:999px;background:var(--text);color:#f5f1e6;cursor:pointer}
+button:hover{filter:brightness(1.15)}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 button:disabled{opacity:.6;cursor:wait}
-.err{color:var(--accent);min-height:1.6em;font-size:.95rem}
+.err{color:#8e2f3a;min-height:1.6em;font-size:1rem}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main class="card">
-  <p class="label">Bienvenue</p>
+  <img class="embleme" src="assets/embleme.png" alt="" width="530" height="515">
   <h1>Louise <span>&amp;</span> Adrien</h1>
+  <svg class="alliances" viewBox="0 0 88 46" aria-hidden="true">
+    <ellipse cx="33" cy="26" rx="20" ry="12.5" transform="rotate(-12 33 26)" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <ellipse cx="55" cy="20" rx="20" ry="12.5" transform="rotate(-12 55 20)" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </svg>
   <p id="loading">Ouverture…</p>
   <div id="gate" hidden>
     <p>Le mot de passe est sur votre faire-part. Ou flashez le QR code, c'est encore plus simple.</p>
     <form id="f" autocomplete="off">
-      <label class="label" for="pwd">Mot de passe</label>
+      <label for="pwd">Mot de passe</label>
       <input id="pwd" name="pwd" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" required>
       <button id="go" type="submit">Entrer</button>
       <p class="err" id="err" role="alert"></p>
@@ -131,7 +147,17 @@ button:disabled{opacity:.6;cursor:wait}
   function remember(raw) {
     try { localStorage.setItem(STORE, JSON.stringify({ salt: SALT, key: hex(raw) })); } catch (e) {}
   }
-  function show(html) { document.open(); document.write(html); document.close(); }
+  // Remplace toute la page par le site déchiffré, puis relance ses scripts (dans l'ordre)
+  function show(html) {
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    document.replaceChild(document.adoptNode(doc.documentElement), document.documentElement);
+    Array.prototype.forEach.call(document.querySelectorAll("script"), function (old) {
+      var s = document.createElement("script");
+      s.textContent = old.textContent;
+      old.parentNode.replaceChild(s, old);
+    });
+    window.scrollTo(0, 0);
+  }
   function tryPassword(pwd) {
     return derive(pwd).then(function (raw) {
       return decrypt(raw).then(function (html) { remember(raw); return html; });
@@ -204,6 +230,8 @@ def main():
         (OUT / page).write_text(gate, encoding="utf-8")
         print(f"  docs/{page}")
 
+    # Dessins et ciels tirés des versos des faire-part (aucun texte) : publics, non chiffrés
+    shutil.copytree(SRC / "assets", OUT / "assets")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
 
